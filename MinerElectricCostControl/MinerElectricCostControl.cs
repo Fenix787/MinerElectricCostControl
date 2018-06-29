@@ -65,15 +65,6 @@ namespace MinerElectricCostControl
 
             // set initial miner status to running
             minerStatus = true;
-
-            // load values from config file
-            minerURL = ConfigurationManager.AppSettings["minerURL"].Split(',');
-            minerPort = ConfigurationManager.AppSettings["minerPort"].Split(',');
-            minerPWD = ConfigurationManager.AppSettings["minerPWD"].Split(',');
-            priceLimit = decimal.Parse(ConfigurationManager.AppSettings["priceLimit"]);
-            priceRequest = ConfigurationManager.AppSettings["priceRequest"];
-            comedURL = ConfigurationManager.AppSettings["comedURL"];
-            timeInterval = Int32.Parse(ConfigurationManager.AppSettings["timeInterval"]);
         }
 
         protected override void OnStart(string[] args)
@@ -83,6 +74,15 @@ namespace MinerElectricCostControl
             serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
             serviceStatus.dwWaitHint = 100000;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
+
+            // Load values from config file.
+            minerURL = ConfigurationManager.AppSettings["minerURL"].Split(',');
+            minerPort = ConfigurationManager.AppSettings["minerPort"].Split(',');
+            minerPWD = ConfigurationManager.AppSettings["minerPWD"].Split(',');
+            priceLimit = decimal.Parse(ConfigurationManager.AppSettings["priceLimit"]);
+            priceRequest = ConfigurationManager.AppSettings["priceRequest"];
+            comedURL = ConfigurationManager.AppSettings["comedURL"];
+            timeInterval = Int32.Parse(ConfigurationManager.AppSettings["timeInterval"]);
 
             // Set up a timer to trigger based on settings.  
             System.Timers.Timer timer = new System.Timers.Timer();
@@ -166,6 +166,7 @@ namespace MinerElectricCostControl
             {
                 socket.Connect(minerURL, int.Parse(minerPort));
                 socket.Send(Encoding.ASCII.GetBytes("{\"id\":0,\"psw\":\"" + minerPSW + "\",\"jsonrpc\":\"2.0\",\"method\":\"control_gpu\",\"params\":[\"-1\", \"" + minerState + "\"]}"));
+                socket.Disconnect(false);
             }
 
         }
