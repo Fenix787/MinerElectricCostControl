@@ -4,6 +4,8 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration.Install;
+using System.Reflection;
 
 namespace MinerElectricCostControl
 {
@@ -12,14 +14,26 @@ namespace MinerElectricCostControl
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main()
+        static void Main(string[] args)
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
+            if (Environment.UserInteractive)
             {
-                new Service1()
-            };
-            ServiceBase.Run(ServicesToRun);
+                string parameter = string.Concat(args);
+                switch (parameter)
+                {
+                    case "--install":
+                        ManagedInstallerClass.InstallHelper(new[] { Assembly.GetExecutingAssembly().Location });
+                        break;
+                    case "--uninstall":
+                        ManagedInstallerClass.InstallHelper(new[] { "/u", Assembly.GetExecutingAssembly().Location });
+                        break;
+                }
+            }
+            else
+            {
+                ServiceBase[] ServicesToRun = new ServiceBase[] { new MinerElectricCostControl(args) };
+                ServiceBase.Run(ServicesToRun);
+            }
         }
     }
 }
